@@ -99,6 +99,9 @@ void kscrs_deleteReportWithID(int64_t reportID);
  */
     void kscrs_setMaxReportCount(int maxReportCount);
 
+
+const char *getAppName(void);
+
 #ifdef __cplusplus
 }
 #endif

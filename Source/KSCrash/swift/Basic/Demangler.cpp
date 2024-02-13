@@ -19,6 +19,7 @@
 #include "ManglingMacros.h"
 #include "Punycode.h"
 #include "SwiftStrings.h"
+#include <limits.h>
 
 using namespace swift;
 using namespace Mangle;
@@ -1022,7 +1023,7 @@ NodePointer Demangler::demangleBuiltinType() {
             name.append(BUILTIN_TYPE_NAME_VEC, *this);
             name.append(elts, *this);
             name.push_back('x', *this);
-            name.append(EltType->getText().substr(strlen(BUILTIN_TYPE_NAME_PREFIX)), *this);
+            name.append(EltType->getText().substr(strnlen(BUILTIN_TYPE_NAME_PREFIX, INT_MAX)), *this);
             Ty = createNode(Node::Kind::BuiltinTypeName, name);
             break;
         }

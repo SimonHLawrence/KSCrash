@@ -102,7 +102,7 @@ namespace swift {
                     // We double the slab size for each allocated slab.
                     SlabSize = std::max(SlabSize * 2, ObjectSize + alignof(T));
                     size_t AllocSize = sizeof(Slab) + SlabSize;
-                    Slab *newSlab = (Slab *)malloc(AllocSize);
+                    Slab *newSlab = (Slab *)calloc(1, AllocSize);
                     
                     // Insert the new slab in the single-linked list of slabs.
                     newSlab->Previous = CurrentSlab;

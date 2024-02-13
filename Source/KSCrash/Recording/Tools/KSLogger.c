@@ -38,7 +38,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
-
+#include <limits.h>
 
 // Compiler hints for "if" statements
 #define likely_if(x) if(__builtin_expect(x,1))
@@ -104,7 +104,7 @@ static void writeToLog(const char* const str)
 {
     if(g_fd >= 0)
     {
-        int bytesToWrite = (int)strlen(str);
+        int bytesToWrite = (int)strnlen(str, INT_MAX);
         const char* pos = str;
         while(bytesToWrite > 0)
         {
@@ -117,7 +117,7 @@ static void writeToLog(const char* const str)
             pos += bytesWritten;
         }
     }
-    write(STDOUT_FILENO, str, strlen(str));
+    write(STDOUT_FILENO, str, strnlen(str, LONG_MAX));
 }
 
 static inline void writeFmtArgsToLog(const char* fmt, va_list args)
@@ -220,11 +220,18 @@ static inline void flushLog(void)
 
 bool kslog_setLogFilename(const char* filename, bool overwrite)
 {
-    static FILE* file = NULL;
-    FILE* oldFile = file;
+    // static FILE* file = NULL;
+    // FILE* oldFile = file;
+    static int file = NULL;
+    int oldFile = file;
+
     if(filename != NULL)
     {
-        file = fopen(filename, overwrite ? "wb" : "ab");
+        if(overwrite)
+            file = open(filename, O_RDWR | O_CREAT | O_TRUNC, 0644);
+        else
+            file = open(filename, O_APPEND);
+        // file = fopen(filename, overwrite ? "wb" : "ab");
         unlikely_if(file == NULL)
         {
             writeFmtToLog("KSLogger: Could not open %s: %s", filename, strerror(errno));
@@ -238,7 +245,8 @@ bool kslog_setLogFilename(const char* filename, bool overwrite)
 
     if(oldFile != NULL)
     {
-        fclose(oldFile);
+        // fclose(oldFile);
+        close(oldFile);
     }
 
     setLogFD(file);
@@ -304,7 +312,7 @@ void i_kslog_logObjCBasic(CFStringRef fmt, ...)
     va_end(args);
     
     int bufferLength = (int)CFStringGetLength(entry) * 4 + 1;
-    char* stringBuffer = malloc((unsigned)bufferLength);
+    char* stringBuffer = calloc(1, (unsigned)bufferLength);
     if(CFStringGetCString(entry, stringBuffer, (CFIndex)bufferLength, kCFStringEncodingUTF8))
     {
         writeToLog(stringBuffer);

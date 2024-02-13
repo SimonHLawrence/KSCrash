@@ -70,7 +70,7 @@ static void handleException(NSException* exception, BOOL currentSnapshotUserRepo
         KSLOG_DEBUG(@"Filling out context.");
         NSArray* addresses = [exception callStackReturnAddresses];
         NSUInteger numFrames = addresses.count;
-        uintptr_t* callstack = malloc(numFrames * sizeof(*callstack));
+        uintptr_t* callstack = calloc(numFrames, sizeof(*callstack));
         for(NSUInteger i = 0; i < numFrames; i++)
         {
             callstack[i] = (uintptr_t)[addresses[i] unsignedLongLongValue];

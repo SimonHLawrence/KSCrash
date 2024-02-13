@@ -168,9 +168,9 @@ static bool deletePathContents(const char* path, bool deleteTopLevelPathAlso)
         dirContents(path, &entries, &entryCount);
 
         int bufferLength = KSFU_MAX_PATH_LENGTH;
-        char* pathBuffer = malloc((unsigned)bufferLength);
+        char* pathBuffer = calloc(1, (unsigned)bufferLength);
         snprintf(pathBuffer, bufferLength, "%s/", path);
-        char* pathPtr = pathBuffer + strlen(pathBuffer);
+        char* pathPtr = pathBuffer + strnlen(pathBuffer, KSFU_MAX_PATH_LENGTH);
         int pathRemainingLength = bufferLength - (int)(pathPtr - pathBuffer);
 
         for(int i = 0; i < entryCount; i++)
@@ -286,7 +286,7 @@ bool ksfu_readEntireFile(const char* const path, char** data, int* length, int m
         }
     }
 
-    mem = malloc((unsigned)bytesToRead + 1);
+    mem = calloc(1, (unsigned)bytesToRead + 1);
     if(mem == NULL)
     {
         KSLOG_ERROR("Out of memory");
@@ -326,7 +326,7 @@ bool ksfu_writeStringToFD(const int fd, const char* const string)
 {
     if(*string != 0)
     {
-        int bytesToWrite = (int)strlen(string);
+        int bytesToWrite = (int)strnlen(string, 0x7FFFFFFF);
         const char* pos = string;
         while(bytesToWrite > 0)
         {

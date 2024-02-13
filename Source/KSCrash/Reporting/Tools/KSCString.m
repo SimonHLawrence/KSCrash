@@ -61,7 +61,7 @@
     if((self = [super init]))
     {
         _bytes = strdup(string);
-        _length = strlen(_bytes);
+        _length = strnlen(_bytes, NSUIntegerMax);
     }
     return self;
 }
@@ -76,7 +76,7 @@
     if((self = [super init]))
     {
         _length = length;
-        char* bytes = malloc((unsigned)_length+1);
+        char* bytes = calloc(1, (unsigned)_length+1);
         memcpy(bytes, data, _length);
         bytes[_length] = 0;
         _bytes = bytes;

@@ -259,7 +259,7 @@ bool kssysctl_getMacAddress(const char* const name,
         return false;
     }
 
-    void* ifBuffer = malloc(length);
+    void* ifBuffer = calloc(1, length);
     if(ifBuffer == NULL)
     {
         KSLOG_ERROR("Out of memory");

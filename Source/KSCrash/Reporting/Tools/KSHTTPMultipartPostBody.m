@@ -148,7 +148,7 @@
                  filename:(NSString*) filename
 {
     const char* cString = [string cStringUsingEncoding:NSUTF8StringEncoding];
-    [self appendData:[NSData dataWithBytes:cString length:strlen(cString)]
+    [self appendData:[NSData dataWithBytes:cString length:strnlen(cString, NSIntegerMax)]
                 name:name
          contentType:contentType
             filename:filename];

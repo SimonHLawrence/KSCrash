@@ -37,6 +37,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <limits.h>
+
 #define MAX_DEPTH 100
 #define MAX_NAME_LENGTH 100
 #define REPORT_VERSION_COMPONENTS_COUNT 3
@@ -196,7 +198,7 @@ static int onIntegerElement(const char* const name,
             ksdate_utcStringFromTimestamp((time_t)value, buffer);
         }
 
-        result = ksjson_addStringElement(context->encodeContext, name, buffer, (int)strlen(buffer));
+        result = ksjson_addStringElement(context->encodeContext, name, buffer, (int)strnlen(buffer, 28));
     }
     else
     {
@@ -233,7 +235,7 @@ static int onStringElement(const char* const name,
             stringValue = demangled;
         }
     }
-    int result = ksjson_addStringElement(context->encodeContext, name, stringValue, (int)strlen(stringValue));
+    int result = ksjson_addStringElement(context->encodeContext, name, stringValue, (int)strnlen(stringValue, INT_MAX));
     if(demangled != NULL)
     {
         free(demangled);
@@ -329,10 +331,10 @@ char* kscrf_fixupCrashReport(const char* crashReport)
         .onStringElement = onStringElement,
     };
     int stringBufferLength = 10000;
-    char* stringBuffer = malloc((unsigned)stringBufferLength);
-    int crashReportLength = (int)strlen(crashReport);
+    char* stringBuffer = calloc(1, (unsigned)stringBufferLength);
+    int crashReportLength = (int)strnlen(crashReport, INT_MAX);
     int fixedReportLength = (int)(crashReportLength * 1.5);
-    char* fixedReport = malloc((unsigned)fixedReportLength);
+    char* fixedReport = calloc(1, (unsigned)fixedReportLength);
     KSJSONEncodeContext encodeContext;
     FixupContext fixupContext =
     {
@@ -346,7 +348,7 @@ char* kscrf_fixupCrashReport(const char* crashReport)
     ksjson_beginEncode(&encodeContext, true, addJSONData, &fixupContext);
     
     int errorOffset = 0;
-    int result = ksjson_decode(crashReport, (int)strlen(crashReport), stringBuffer, stringBufferLength, &callbacks, &fixupContext, &errorOffset);
+    int result = ksjson_decode(crashReport, (int)strnlen(crashReport, INT_MAX), stringBuffer, stringBufferLength, &callbacks, &fixupContext, &errorOffset);
     *fixupContext.outputPtr = '\0';
     free(stringBuffer);
     if(result != KSJSON_OK)

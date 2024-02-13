@@ -129,7 +129,7 @@ static bool installSignalHandler(void)
     {
         KSLOG_DEBUG("Allocating signal stack area.");
         g_signalStack.ss_size = SIGSTKSZ;
-        g_signalStack.ss_sp = malloc(g_signalStack.ss_size);
+        g_signalStack.ss_sp = calloc(1, g_signalStack.ss_size);
     }
 
     KSLOG_DEBUG("Setting signal stack area.");
@@ -146,8 +146,8 @@ static bool installSignalHandler(void)
     if(g_previousSignalHandlers == NULL)
     {
         KSLOG_DEBUG("Allocating memory to store previous signal handlers.");
-        g_previousSignalHandlers = malloc(sizeof(*g_previousSignalHandlers)
-                                          * (unsigned)fatalSignalsCount);
+        g_previousSignalHandlers = calloc((unsigned)fatalSignalsCount,
+                                          sizeof(*g_previousSignalHandlers));
     }
 
     struct sigaction action = {{0}};

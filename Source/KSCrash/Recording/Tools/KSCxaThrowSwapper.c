@@ -355,7 +355,7 @@ int ksct_swap(const cxa_throw_type handler)
     if (g_cxa_originals == NULL)
     {
         g_cxa_originals_capacity = 25;
-        g_cxa_originals = (KSAddressPair *) malloc(sizeof(KSAddressPair) * g_cxa_originals_capacity);
+        g_cxa_originals = (KSAddressPair *) calloc(g_cxa_originals_capacity, sizeof(KSAddressPair));
     }
     g_cxa_originals_count = 0;
 

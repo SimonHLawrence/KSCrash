@@ -33,7 +33,7 @@
 - (void) appendUTF8String:(NSString*) string
 {
     const char* cstring = [string UTF8String];
-    [self appendBytes:cstring length:strlen(cstring)];
+    [self appendBytes:cstring length:strnlen(cstring, NSUIntegerMax)];
 }
 
 - (void) appendUTF8Format:(NSString*) format, ...
@@ -43,7 +43,7 @@
     NSString* string = [[NSString alloc] initWithFormat:format arguments:args];
     va_end(args);
     const char* cstring = [string UTF8String];
-    [self appendBytes:cstring length:strlen(cstring)];
+    [self appendBytes:cstring length:strnlen(cstring, NSUIntegerMax)];
 }
 
 @end

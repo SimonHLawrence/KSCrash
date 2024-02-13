@@ -34,6 +34,8 @@
 #import "KSSysCtl.h"
 #import "KSSystemCapabilities.h"
 
+#import <limits.h>
+
 //#define KSLogger_LocalLevel TRACE
 #import "KSLogger.h"
 
@@ -127,7 +129,7 @@ static const char* stringSysctl(const char* name)
         return NULL;
     }
 
-    char* value = malloc((size_t)size);
+    char* value = calloc(1, (size_t)size);
     if(kssysctl_stringForName(name, value, size) <= 0)
     {
         free(value);
@@ -139,7 +141,7 @@ static const char* stringSysctl(const char* name)
 
 static const char* dateString(time_t date)
 {
-    char* buffer = malloc(21);
+    char* buffer = calloc(1, 21);
     ksdate_utcStringFromTimestamp(date, buffer);
     return buffer;
 }
@@ -410,7 +412,7 @@ static const char* getDeviceAndAppHash(void)
     [data appendData:(NSData* _Nonnull )[nsstringSysctl(@"hw.machine") dataUsingEncoding:NSUTF8StringEncoding]];
     [data appendData:(NSData* _Nonnull )[nsstringSysctl(@"hw.model") dataUsingEncoding:NSUTF8StringEncoding]];
     const char* cpuArch = getCurrentCPUArch();
-    [data appendBytes:cpuArch length:strlen(cpuArch)];
+    [data appendBytes:cpuArch length:strnlen(cpuArch, INT_MAX)];
     
     // Append the bundle ID.
     NSData* bundleID = [[[NSBundle mainBundle] bundleIdentifier] dataUsingEncoding:NSUTF8StringEncoding];

@@ -1470,7 +1470,7 @@ static NSString* toString(NSData* data)
 {
     NSError *error = (NSError*)self;
 
-    char * buffer = malloc(0x1000000);
+    char * buffer = calloc(1, 0x1000000);
     for (int i = 0; i < 0x1000000; i++) {
         buffer[i] = ';';
     }

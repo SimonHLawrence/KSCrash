@@ -453,7 +453,7 @@ SYNTHESIZE_CRASH_STATE_PROPERTY(BOOL, crashedLastLaunch)
     char* report = kscrash_readReport(reportID);
     if(report != NULL)
     {
-        return [NSData dataWithBytesNoCopy:report length:strlen(report) freeWhenDone:YES];
+        return [NSData dataWithBytesNoCopy:report length:strnlen(report, NSUIntegerMax) freeWhenDone:YES];
     }
     return nil;
 }

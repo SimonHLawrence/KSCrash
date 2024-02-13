@@ -98,7 +98,7 @@ bool ksthread_getQueueName(const KSThread thread, char* const buffer, int bufLen
         return false;
     }
     KSLOG_TRACE("Dispatch queue name: %s", queue_name);
-    int length = (int)strlen(queue_name);
+    int length = (int)strnlen(queue_name, INT_MAX);
     
     // Queue label must be a null terminated string.
     int iLabel;

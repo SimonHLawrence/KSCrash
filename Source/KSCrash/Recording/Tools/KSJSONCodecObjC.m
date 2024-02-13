@@ -127,7 +127,7 @@
     if((self = [super init]))
     {
         self.containerStack = [NSMutableArray array];
-        self.callbacks = malloc(sizeof(*self.callbacks));
+        self.callbacks = calloc(1, sizeof(*self.callbacks));
         self.callbacks->onBeginArray = onBeginArray;
         self.callbacks->onBeginObject = onBeginObject;
         self.callbacks->onBooleanElement = onBooleanElement;

@@ -37,7 +37,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-
+#include "FileNameUtils.h"
 
 static int g_maxReportCount = 5;
 // Have to use max 32-bit atomics because of MIPS.
@@ -46,6 +46,11 @@ static int64_t g_nextUniqueIDHigh;
 static const char* g_appName;
 static const char* g_reportsPath;
 static pthread_mutex_t g_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+const char *getAppName(void)
+{
+  return g_appName;
+}
 
 static int compareInt64(const void* a, const void* b)
 {
@@ -72,15 +77,16 @@ static void getCrashReportPathByID(int64_t id, char* pathBuffer)
     
 }
 
-static int64_t getReportIDFromFilename(const char* filename)
-{
-    char scanFormat[100];
-    sprintf(scanFormat, "%s-report-%%" PRIx64 ".json", g_appName);
-    
-    int64_t reportID = 0;
-    sscanf(filename, scanFormat, &reportID);
-    return reportID;
-}
+// Moved to Obj-C portion, see FileNameUtils.m
+//static int64_t getReportIDFromFilename(const char* filename)
+//{
+//    char scanFormat[100];
+//    sprintf(scanFormat, "%s-report-%%" PRIx64 ".json", g_appName);
+//    
+//    int64_t reportID = 0;
+//    sscanf(filename, scanFormat, &reportID);
+//    return reportID;
+//}
 
 static int getReportCount(void)
 {

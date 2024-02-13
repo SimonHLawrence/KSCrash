@@ -58,6 +58,8 @@
 #include <unistd.h>
 #include <sys/time.h>
 
+#include <limits.h>
+
 // ============================================================================
 #pragma mark - Constants -
 // ============================================================================
@@ -252,7 +254,7 @@ static void addJSONElement(const KSCrashReportWriter* const writer,
     int jsonResult = ksjson_addJSONElement(getJsonContext(writer),
                                            key,
                                            jsonElement,
-                                           (int)strlen(jsonElement),
+                                           (int)strnlen(jsonElement, INT_MAX),
                                            closeLastContainer);
     if(jsonResult != KSJSON_OK)
     {
@@ -866,7 +868,7 @@ static void writeAddressReferencedByString(const KSCrashReportWriter* const writ
                                            const char* string)
 {
     uint64_t address = 0;
-    if(string == NULL || !ksstring_extractHexValue(string, (int)strlen(string), &address))
+    if(string == NULL || !ksstring_extractHexValue(string, (int)strnlen(string, INT_MAX), &address))
     {
         return;
     }
@@ -1608,7 +1610,7 @@ void kscrashreport_writeRecrashReport(const KSCrash_MonitorContext* const monito
     KSBufferedWriter bufferedWriter;
     static char tempPath[KSFU_MAX_PATH_LENGTH];
     strncpy(tempPath, path, sizeof(tempPath) - 10);
-    strncpy(tempPath + strlen(tempPath) - 5, ".old", 5);
+    strncpy(tempPath + strnlen(tempPath, KSFU_MAX_PATH_LENGTH) - 5, ".old", 5);
     KSLOG_INFO("Writing recrash report to %s", path);
 
     if(rename(path, tempPath) < 0)
@@ -1842,7 +1844,7 @@ void kscrashreport_setDoNotIntrospectClasses(const char** doNotIntrospectClasses
     if(doNotIntrospectClasses != NULL && length > 0)
     {
         newClassesLength = length;
-        newClasses = malloc(sizeof(*newClasses) * (unsigned)newClassesLength);
+        newClasses = calloc((unsigned)newClassesLength, sizeof(*newClasses));
         if(newClasses == NULL)
         {
             KSLOG_ERROR("Could not allocate memory");

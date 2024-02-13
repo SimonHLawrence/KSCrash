@@ -27,6 +27,7 @@
 
 #include "KSJSONCodec.h"
 
+#include <stdlib.h>
 #include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -290,7 +291,7 @@ int ksjson_beginElement(KSJSONEncodeContext* const context, const char* const na
             KSLOG_DEBUG("Name was null inside an object");
             return KSJSON_ERROR_INVALID_DATA;
         }
-        unlikely_if((result = addQuotedEscapedString(context, name, (int)strlen(name))) != KSJSON_OK)
+        unlikely_if((result = addQuotedEscapedString(context, name, (int)strnlen(name, INT_MAX))) != KSJSON_OK)
         {
             return result;
         }
@@ -349,7 +350,7 @@ int ksjson_addFloatingPointElement(KSJSONEncodeContext* const context,
     }
     char buff[30];
     sprintf(buff, "%lg", value);
-    return addJSONData(context, buff, (int)strlen(buff));
+    return addJSONData(context, buff, (int)strnlen(buff, 30));
 }
 
 int ksjson_addIntegerElement(KSJSONEncodeContext* const context,
@@ -363,7 +364,7 @@ int ksjson_addIntegerElement(KSJSONEncodeContext* const context,
     }
     char buff[30];
     sprintf(buff, "%" PRId64, value);
-    return addJSONData(context, buff, (int)strlen(buff));
+    return addJSONData(context, buff, (int)strnlen(buff, 30));
 }
 
 int ksjson_addUIntegerElement(KSJSONEncodeContext* const context,
@@ -377,7 +378,7 @@ int ksjson_addUIntegerElement(KSJSONEncodeContext* const context,
     }
     char buff[30];
     sprintf(buff, "%" PRIu64, value);
-    return addJSONData(context, buff, (int)strlen(buff));
+    return addJSONData(context, buff, (int)strnlen(buff, 30));
 }
 
 int ksjson_addNullElement(KSJSONEncodeContext* const context,
@@ -407,7 +408,7 @@ int ksjson_addStringElement(KSJSONEncodeContext* const context,
     }
     if(length == KSJSON_SIZE_AUTOMATIC)
     {
-        length = (int)strlen(value);
+        length = (int)strnlen(value, INT_MAX);
     }
     return addQuotedEscapedString(context, value, length);
 }
@@ -1122,8 +1123,8 @@ static int decodeElement(const char* const name, KSJSONDecodeContext* context)
             }
             strncpy(context->stringBuffer, start, len);
             context->stringBuffer[len] = '\0';
-
-            sscanf(context->stringBuffer, "%lg", &value);
+            value = strtod(context->stringBuffer, NULL);
+            // sscanf(context->stringBuffer, "%lg", &value);
 
             value *= sign;
             return context->callbacks->onFloatingPointElement(name, value, context->userData);
@@ -1263,7 +1264,7 @@ static int addJSONFromFile_onStringElement(const char* const name,
                                            void* const userData)
 {
     JSONFromFileContext* context = (JSONFromFileContext*)userData;
-    int result = ksjson_addStringElement(context->encodeContext, name, value, (int)strlen(value));
+    int result = ksjson_addStringElement(context->encodeContext, name, value, (int)strnlen(value, INT_MAX));
     context->updateDecoderCallback(context);
     return result;
 }
